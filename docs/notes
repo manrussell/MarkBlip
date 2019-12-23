@@ -1,0 +1,42 @@
+folders for project
+===================
+src
+inc
+docs
+debug
+release
+schematics
+original code for meeblip
+- maybe put in winavr/usbasp drivers/zadig/ downloaded tutorials/datasheets
+
+files
+=====
+nice to have .i preprocessed file
+
+
+make file edits
+===============
+
+input  .c location
+input  .h location
+output location
+
+
+AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+
+
+check variables
+===============
+
+F_CPU = 8000000
+
+# Target file name (without extension).
+$(TARGET) ... TARGET = main
+
+# List C source files here. (C dependencies are automatically generated.)
+SRC = $(TARGET).c
+
+useful make targets
+==================
+
+
