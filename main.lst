@@ -8,27 +8,102 @@
   15               	.Ltext0:
   16               	.global	main
   18               	main:
-  19               	.LFB2:
+  19               	.LFB6:
   20               	.LM1:
   21               	/* prologue: function */
   22               	/* frame size = 0 */
   23               	.LM2:
-  24 0000 82E0      		ldi r24,lo8(2)
+  24 0000 82EF      		ldi r24,lo8(-14)
   25 0002 81BB      		out 49-32,r24
   26               	.LM3:
-  27 0004 82BB      		out 50-32,r24
-  28               	.L2:
-  29 0006 00C0      		rjmp .L2
-  30               	.LFE2:
-  56               	.Letext0:
+  27 0004 82E0      		ldi r24,lo8(2)
+  28 0006 82BB      		out 50-32,r24
+  29               	.LM4:
+  30 0008 9498      		cbi 50-32,4
+  31               	.LM5:
+  32 000a 9598      		cbi 50-32,5
+  33               	.LM6:
+  34 000c 9698      		cbi 50-32,6
+  35               	.LM7:
+  36 000e 9798      		cbi 50-32,7
+  37 0010 80E1      		ldi r24,lo8(10000)
+  38 0012 97E2      		ldi r25,hi8(10000)
+  39               	.LVL0:
+  40               	.LBB12:
+  41               	.LBB13:
+  42               	.LBB14:
+  43               	.LBB15:
+  44               	.LM8:
+  45 0014 28EC      		ldi r18,lo8(200)
+  46 0016 30E0      		ldi r19,hi8(200)
+  47               	.L2:
+  48 0018 F901      		movw r30,r18
+  49               	.LVL1:
+  50               	/* #APP */
+  51               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
+  52 001a 3197      		1: sbiw r30,1
+  53 001c 01F4      		brne 1b
+  54               	 ;  0 "" 2
+  55               	/* #NOAPP */
+  56               	.LBE15:
+  57               	.LBE14:
+  58               	.LM9:
+  59 001e 0197      		sbiw r24,1
+  60               	.LM10:
+  61 0020 01F4      		brne .L2
+  62               	.LBE13:
+  63               	.LBE12:
+  64               	.LM11:
+  65 0022 17BA      		out 55-32,__zero_reg__
+  66               	.LM12:
+  67 0024 88E0      		ldi r24,lo8(8)
+  68               	.LVL2:
+  69 0026 88BB      		out 56-32,r24
+  70               	.L7:
+  71               	.LM13:
+  72 0028 86B3      		in r24,54-32
+  73               	.LM14:
+  74 002a 26B3      		in r18,54-32
+  75 002c 86B3      		in r24,54-32
+  76 002e 46B3      		in r20,54-32
+  77 0030 66B3      		in r22,54-32
+  78 0032 90E0      		ldi r25,lo8(0)
+  79 0034 8470      		andi r24,lo8(4)
+  80 0036 9070      		andi r25,hi8(4)
+  81 0038 30E0      		ldi r19,lo8(0)
+  82 003a 2870      		andi r18,lo8(8)
+  83 003c 3070      		andi r19,hi8(8)
+  84 003e 822B      		or r24,r18
+  85 0040 932B      		or r25,r19
+  86 0042 50E0      		ldi r21,lo8(0)
+  87 0044 4270      		andi r20,lo8(2)
+  88 0046 5070      		andi r21,hi8(2)
+  89 0048 842B      		or r24,r20
+  90 004a 952B      		or r25,r21
+  91 004c 70E0      		ldi r23,lo8(0)
+  92 004e 6170      		andi r22,lo8(1)
+  93 0050 7070      		andi r23,hi8(1)
+  94 0052 862B      		or r24,r22
+  95 0054 972B      		or r25,r23
+  96 0056 892B      		or r24,r25
+  97 0058 01F0      		breq .L3
+  98               	.LM15:
+  99 005a 919A      		sbi 50-32,1
+ 100 005c 00C0      		rjmp .L7
+ 101               	.L3:
+ 102               	.LM16:
+ 103 005e 9198      		cbi 50-32,1
+ 104 0060 00C0      		rjmp .L7
+ 105               	.LFE6:
+ 131               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:2      *ABS*:0000003f __SREG__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:3      *ABS*:0000003e __SP_H__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:4      *ABS*:0000003d __SP_L__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:5      *ABS*:00000034 __CCP__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\sigita\AppData\Local\Temp/cc0t5UPj.s:18     .text:00000000 main
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:2      *ABS*:0000003f __SREG__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:3      *ABS*:0000003e __SP_H__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:4      *ABS*:0000003d __SP_L__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:5      *ABS*:00000034 __CCP__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\sigita\AppData\Local\Temp/cc1dP4G2.s:18     .text:00000000 main
 
 NO UNDEFINED SYMBOLS
