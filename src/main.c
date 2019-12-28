@@ -25,14 +25,13 @@ AVR programming notes
     DDRD  = 0b00000001; 	// 1 is output
     PORTD = 0b00000001; 	// 1 is 5V
     
-    PORTB is output data register, PINB is input data register.
+    PORTB is output data register, 
+	PINB is input data register.
     
     to enable pull-ups on input.
     if DDRB = 0 (is input), then set high using PORTB
     then PORTB = ( 1u << 3 );
     
-    
-
 */
 
 
@@ -40,55 +39,86 @@ AVR programming notes
 #include <util/delay.h>
 //#include "test.h"
 
-#define POWER_LED		( 1u << 1 )
-#define POWER_LED_ON	( 1u << 1 )
+#define POWER_LED			( 1u << 1 )
+#define POWER_LED_ON( )		( PORTD |= POWER_LED )
+#define POWER_LED_OFF( )	( PORTD &= ~POWER_LED )
+
 
 #define COLUMN_ONE		( 1u << 7 )
 #define COLUMN_TWO		( 1u << 6 )
 #define COLUMN_THREE	( 1u << 5 )
 #define COLUMN_FOUR		( 1u << 4 )
 
+#define SET_COLUMN_ONE_OUTPUT( )	( DDRD 	|= COLUMN_ONE  )
+#define SET_COLUMN_TWO_OUTPUT( )	( DDRD 	|= COLUMN_TWO  )
+#define SET_COLUMN_THREE_OUTPUT( )	( DDRD 	|= COLUMN_THREE)
+#define SET_COLUMN_FOUR_OUTPUT( )	( DDRD 	|= COLUMN_FOUR )
+        
+#define SET_COLUMN_ONE_LOW( )		( PORTD &= ~(COLUMN_ONE)  )
+#define SET_COLUMN_TWO_LOW( )		( PORTD &= ~(COLUMN_TWO)  )
+#define SET_COLUMN_THREE_LOW( )		( PORTD &= ~(COLUMN_THREE))
+#define SET_COLUMN_FOUR_LOW( )		( PORTD &= ~(COLUMN_FOUR) )
+
+/* to disable set pin as input. */
+#define DISABLE_COLUMN_ONE( )		( DDRD &= ~(COLUMN_ONE)  )
+#define DISABLE_COLUMN_TWO_LOW( )	( DDRD &= ~(COLUMN_TWO)  )
+#define DISABLE_COLUMN_THREE_LOW( )	( DDRD &= ~(COLUMN_THREE))
+#define DISABLE_COLUMN_FOUR_LOW( )	( DDRD &= ~(COLUMN_FOUR) )
+
+
 #define ROW_ONE			( 1u << 3 )
 #define ROW_TWO			( 1u << 2 )
 #define ROW_THREE		( 1u << 1 )
 #define ROW_FOUR		( 1u << 0 )
+/* pin << 4 is midi pin, ( 1u << 4 ) | */
 
-    // PB0-PB4		Control Panel Switches - ROWS
-    // PD4-PD7		Control Panel Switches - COLUMNS
+#define SET_ROW_ONE_INPUT( )		( DDRB &= ~(ROW_ONE)  )
+#define SET_ROW_TWO_INPUT( )		( DDRB &= ~(ROW_TWO)  )
+#define SET_ROW_THREE_INPUT( )		( DDRB &= ~(ROW_THREE))
+#define SET_ROW_FOUR_INPUT( )		( DDRB &= ~(ROW_FOUR) )
+
+#define SET_ROW_ONE_PULLUP( )		( PORTB |= ROW_ONE  )
+#define SET_ROW_TWO_PULLUP( )		( PORTB |= ROW_TWO  )
+#define SET_ROW_THREE_PULLUP( )		( PORTB |= ROW_THREE)
+#define SET_ROW_FOUR_PULLUP( )		( PORTB |= ROW_FOUR )
+
+#define READ_ROW_ONE( )		( PINB & ROW_ONE )
+#define READ_ROW_TWO( )		( PINB & ROW_TWO  )
+#define READ_ROW_THREE( )	( PINB & ROW_THREE)
+#define READ_ROW_FOUR( )	( PINB & ROW_FOUR )
+
 
 void main(void)
 {
     uint8_t switches = 0;
     
     /* port D outputs */
-    /* flash led for 1 second */
     DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
-	
-	PORTD 	= POWER_LED_ON; 
     
     /* make sure these are set low, */
-    PORTD 	&= ~( 1u << 4 ); // COLUMN_ONE	
-    PORTD 	&= ~( 1u << 5 ); // COLUMN_TWO	
-    PORTD 	&= ~( 1u << 6 ); // COLUMN_THREE
-    PORTD 	&= ~( 1u << 7 ); // COLUMN_FOUR	
+	SET_COLUMN_ONE_LOW( );	
+	SET_COLUMN_TWO_LOW( );	
+	SET_COLUMN_THREE_LOW( );
+	SET_COLUMN_FOUR_LOW( );	
+
+	POWER_LED_ON( );	
     
     _delay_ms(1000); //ensure  power led on for 1 second
     
     
     /* make rows input*/
-    /* pin << 4 is midi pin, ( 1u << 4 ) | */
     DDRB  = 0;
 	
-	/* apply pull-ups*/
-    // PORTB = ( 1u << 4 ) | ( 1u << 3 ) | ( 1u << 2 ) | ( 1u << 1 ) |( 1u << 0 );
-    PORTB = ROW_ONE; // << 3
-    
+	SET_ROW_ONE_PULLUP( );
+	SET_ROW_TWO_PULLUP( );	
+	SET_ROW_THREE_PULLUP( );	
+    SET_ROW_FOUR_PULLUP( );	
     
     
     /* switch one is connected to pin B3 and pin D7 */
     while(1)
     {        
-        switches = PINB & ( 1u << 3) ; // doing this makes switches 1,2,3,4
+        switches = READ_ROW_ONE( ) ; // doing this makes switches 1,2,3,4
     
         /* can't do this as switches 1,2,3,4 are row 1, and if any column pulls down that line to ground then
 		if ( ( PINB & ( 1u << 3) ) |
@@ -98,14 +128,12 @@ void main(void)
         )*/
         if ( switches )
         {
-            // set power led on
-            PORTD |= ( 1u << 1 );
+            POWER_LED_ON( );
             
         }
         else
         {
-            // power led off
-            PORTD &= ~(1u << 1);
+            POWER_LED_OFF( );
             
         }   
     }  

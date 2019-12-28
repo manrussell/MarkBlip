@@ -3,23 +3,21 @@ src/main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000a4  00000000  00000000  00000054  2**1
+  0 .text         000000a6  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  000000f8  2**0
+  1 .debug_aranges 00000020  00000000  00000000  000000fa  2**0
                   CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  00000118  2**0
+  2 .debug_pubnames 0000001b  00000000  00000000  0000011a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   0000012e  00000000  00000000  00000133  2**0
+  3 .debug_info   00000131  00000000  00000000  00000135  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000b4  00000000  00000000  00000261  2**0
+  4 .debug_abbrev 000000b4  00000000  00000000  00000266  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   0000015d  00000000  00000000  00000315  2**0
+  5 .debug_line   00000173  00000000  00000000  0000031a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  00000474  2**2
+  6 .debug_frame  00000020  00000000  00000000  00000490  2**2
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000d6  00000000  00000000  00000494  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    00000018  00000000  00000000  0000056a  2**0
+  7 .debug_str    000000d6  00000000  00000000  000004b0  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -55,98 +53,98 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 50 00 	jmp	0xa0	; 0xa0 <_exit>
+  64:	0c 94 51 00 	jmp	0xa2	; 0xa2 <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
+void main(void)
 {
     uint8_t switches = 0;
     
     /* port D outputs */
-    /* flash led for 1 second */
     DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
   6c:	82 ef       	ldi	r24, 0xF2	; 242
   6e:	81 bb       	out	0x11, r24	; 17
-	
-	PORTD 	= POWER_LED_ON; 
-  70:	82 e0       	ldi	r24, 0x02	; 2
-  72:	82 bb       	out	0x12, r24	; 18
     
     /* make sure these are set low, */
-    PORTD 	&= ~( 1u << 4 ); // COLUMN_ONE	
-  74:	94 98       	cbi	0x12, 4	; 18
-    PORTD 	&= ~( 1u << 5 ); // COLUMN_TWO	
-  76:	95 98       	cbi	0x12, 5	; 18
-    PORTD 	&= ~( 1u << 6 ); // COLUMN_THREE
-  78:	96 98       	cbi	0x12, 6	; 18
-    PORTD 	&= ~( 1u << 7 ); // COLUMN_FOUR	
-  7a:	97 98       	cbi	0x12, 7	; 18
-  7c:	80 e1       	ldi	r24, 0x10	; 16
-  7e:	97 e2       	ldi	r25, 0x27	; 39
+	SET_COLUMN_ONE_LOW( );	
+  70:	97 98       	cbi	0x12, 7	; 18
+	SET_COLUMN_TWO_LOW( );	
+  72:	96 98       	cbi	0x12, 6	; 18
+	SET_COLUMN_THREE_LOW( );
+  74:	95 98       	cbi	0x12, 5	; 18
+	SET_COLUMN_FOUR_LOW( );	
+  76:	94 98       	cbi	0x12, 4	; 18
+
+	POWER_LED_ON( );	
+  78:	91 9a       	sbi	0x12, 1	; 18
+  7a:	80 e1       	ldi	r24, 0x10	; 16
+  7c:	97 e2       	ldi	r25, 0x27	; 39
     milliseconds can be achieved.
  */
 void
 _delay_loop_2(uint16_t __count)
 {
 	__asm__ volatile (
-  80:	20 e9       	ldi	r18, 0x90	; 144
-  82:	31 e0       	ldi	r19, 0x01	; 1
-  84:	f9 01       	movw	r30, r18
-  86:	31 97       	sbiw	r30, 0x01	; 1
-  88:	f1 f7       	brne	.-4      	; 0x86 <main+0x1a>
+  7e:	20 e9       	ldi	r18, 0x90	; 144
+  80:	31 e0       	ldi	r19, 0x01	; 1
+  82:	f9 01       	movw	r30, r18
+  84:	31 97       	sbiw	r30, 0x01	; 1
+  86:	f1 f7       	brne	.-4      	; 0x84 <main+0x18>
 		__ticks = (uint16_t) (__ms * 10.0);
 		while(__ticks)
 		{
 			// wait 1/10 ms
 			_delay_loop_2(((F_CPU) / 4e3) / 10);
 			__ticks --;
-  8a:	01 97       	sbiw	r24, 0x01	; 1
+  88:	01 97       	sbiw	r24, 0x01	; 1
 		__ticks = 1;
 	else if (__tmp > 65535)
 	{
 		//	__ticks = requested delay in 1/10 ms
 		__ticks = (uint16_t) (__ms * 10.0);
 		while(__ticks)
-  8c:	d9 f7       	brne	.-10     	; 0x84 <main+0x18>
+  8a:	d9 f7       	brne	.-10     	; 0x82 <main+0x16>
+    
     _delay_ms(1000); //ensure  power led on for 1 second
     
     
     /* make rows input*/
-    /* pin << 4 is midi pin, ( 1u << 4 ) | */
     DDRB  = 0;
-  8e:	17 ba       	out	0x17, r1	; 23
+  8c:	17 ba       	out	0x17, r1	; 23
 	
-	/* apply pull-ups*/
-    // PORTB = ( 1u << 4 ) | ( 1u << 3 ) | ( 1u << 2 ) | ( 1u << 1 ) |( 1u << 0 );
-    PORTB = ROW_ONE; // << 3
-  90:	88 e0       	ldi	r24, 0x08	; 8
-  92:	88 bb       	out	0x18, r24	; 24
+	SET_ROW_ONE_PULLUP( );
+  8e:	c3 9a       	sbi	0x18, 3	; 24
+	SET_ROW_TWO_PULLUP( );	
+  90:	c2 9a       	sbi	0x18, 2	; 24
+	SET_ROW_THREE_PULLUP( );	
+  92:	c1 9a       	sbi	0x18, 1	; 24
+    SET_ROW_FOUR_PULLUP( );	
+  94:	c0 9a       	sbi	0x18, 0	; 24
 		if ( ( PINB & ( 1u << 3) ) |
              ( PINB & ( 1u << 2) ) |
              ( PINB & ( 1u << 1) ) |
              ( PINB & ( 1u << 0) )
         )*/
         if ( switches )
-  94:	b3 9b       	sbis	0x16, 3	; 22
-  96:	02 c0       	rjmp	.+4      	; 0x9c <main+0x30>
+  96:	b3 9b       	sbis	0x16, 3	; 22
+  98:	02 c0       	rjmp	.+4      	; 0x9e <main+0x32>
         {
-            // set power led on
-            PORTD |= ( 1u << 1 );
-  98:	91 9a       	sbi	0x12, 1	; 18
-  9a:	fc cf       	rjmp	.-8      	; 0x94 <main+0x28>
+            POWER_LED_ON( );
+  9a:	91 9a       	sbi	0x12, 1	; 18
+  9c:	fc cf       	rjmp	.-8      	; 0x96 <main+0x2a>
             
         }
         else
         {
-            // power led off
-            PORTD &= ~(1u << 1);
-  9c:	91 98       	cbi	0x12, 1	; 18
-  9e:	fa cf       	rjmp	.-12     	; 0x94 <main+0x28>
+            POWER_LED_OFF( );
+  9e:	91 98       	cbi	0x12, 1	; 18
+  a0:	fa cf       	rjmp	.-12     	; 0x96 <main+0x2a>
 
-000000a0 <_exit>:
-  a0:	f8 94       	cli
+000000a2 <_exit>:
+  a2:	f8 94       	cli
 
-000000a2 <__stop_program>:
-  a2:	ff cf       	rjmp	.-2      	; 0xa2 <__stop_program>
+000000a4 <__stop_program>:
+  a4:	ff cf       	rjmp	.-2      	; 0xa4 <__stop_program>
