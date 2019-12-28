@@ -38,48 +38,65 @@ AVR programming notes
 
 #include <avr/io.h>
 #include <util/delay.h>
+//#include "test.h"
+
+#define POWER_LED		( 1u << 1 )
+#define POWER_LED_ON	( 1u << 1 )
+
+#define COLUMN_ONE		( 1u << 7 )
+#define COLUMN_TWO		( 1u << 6 )
+#define COLUMN_THREE	( 1u << 5 )
+#define COLUMN_FOUR		( 1u << 4 )
+
+#define ROW_ONE			( 1u << 3 )
+#define ROW_TWO			( 1u << 2 )
+#define ROW_THREE		( 1u << 1 )
+#define ROW_FOUR		( 1u << 0 )
+
+    // PB0-PB4		Control Panel Switches - ROWS
+    // PD4-PD7		Control Panel Switches - COLUMNS
 
 void main(void)
 {
     uint8_t switches = 0;
     
-    // PB0-PB4		Control Panel Switches - ROWS
-    // PD4-PD7		Control Panel Switches - COLUMNS
-    
-    /* set port D as output and turn D1 on*/
-    /* pins 4,5,6,7 must be set low */
+    /* port D outputs */
     /* flash led for 1 second */
-    DDRD 	= ( 1u << 7 ) | ( 1u << 6 ) | ( 1u << 5 ) |( 1u << 4 ) | ( 1u << 1 );
-    PORTD 	= ( 1u << 1 ); 
+    DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
+	
+	PORTD 	= POWER_LED_ON; 
     
-    /* make sure these are set low */
-    PORTD 	&= ~( 1u << 4 );
-    PORTD 	&= ~( 1u << 5 );
-    PORTD 	&= ~( 1u << 6 );
-    PORTD 	&= ~( 1u << 7 );
+    /* make sure these are set low, */
+    PORTD 	&= ~( 1u << 4 ); // COLUMN_ONE	
+    PORTD 	&= ~( 1u << 5 ); // COLUMN_TWO	
+    PORTD 	&= ~( 1u << 6 ); // COLUMN_THREE
+    PORTD 	&= ~( 1u << 7 ); // COLUMN_FOUR	
     
-    _delay_ms(1000); //1 second delay
+    _delay_ms(1000); //ensure  power led on for 1 second
     
     
-    /* make rows input with pull ups */
+    /* make rows input*/
     /* pin << 4 is midi pin, ( 1u << 4 ) | */
     DDRB  = 0;
+	
+	/* apply pull-ups*/
     // PORTB = ( 1u << 4 ) | ( 1u << 3 ) | ( 1u << 2 ) | ( 1u << 1 ) |( 1u << 0 );
-    PORTB = ( 1u << 3 );
+    PORTB = ROW_ONE; // << 3
     
     
     
     /* switch one is connected to pin B3 and pin D7 */
     while(1)
     {        
-        switches = PINB & ( 1u << 3); // PORTB is output data register, PIN is input data register
+        switches = PINB & ( 1u << 3) ; // doing this makes switches 1,2,3,4
     
-        if ( ( PINB & ( 1u << 3) ) |
+        /* can't do this as switches 1,2,3,4 are row 1, and if any column pulls down that line to ground then
+		if ( ( PINB & ( 1u << 3) ) |
              ( PINB & ( 1u << 2) ) |
              ( PINB & ( 1u << 1) ) |
              ( PINB & ( 1u << 0) )
-        )
-        //if ( switches )
+        )*/
+        if ( switches )
         {
             // set power led on
             PORTD |= ( 1u << 1 );

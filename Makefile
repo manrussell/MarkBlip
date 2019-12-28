@@ -62,15 +62,18 @@ MCU = atmega32
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 8000000
+F_CPU = 16000000
 
 
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
+SRC_FOLDER = src
+INC_FOLDER = inc
+OUTPUT_FOLDER = release
 
 # Target file name (without extension).
-TARGET = main
+TARGET = $(SRC_FOLDER)/main
 
 
 # Object files directory
@@ -114,7 +117,7 @@ DEBUG = dwarf-2
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = 
+EXTRAINCDIRS = \inc
 
 
 # Compiler flag to set the C Standard level.

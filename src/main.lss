@@ -1,25 +1,25 @@
 
-main.elf:     file format elf32-avr
+src/main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000d2  00000000  00000000  00000054  2**1
+  0 .text         000000a4  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  00000126  2**0
+  1 .debug_aranges 00000020  00000000  00000000  000000f8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  00000146  2**0
+  2 .debug_pubnames 0000001b  00000000  00000000  00000118  2**0
                   CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   0000012e  00000000  00000000  00000161  2**0
+  3 .debug_info   0000012e  00000000  00000000  00000133  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000b4  00000000  00000000  0000028f  2**0
+  4 .debug_abbrev 000000b4  00000000  00000000  00000261  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   00000162  00000000  00000000  00000343  2**0
+  5 .debug_line   0000015d  00000000  00000000  00000315  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  000004a8  2**2
+  6 .debug_frame  00000020  00000000  00000000  00000474  2**2
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000d2  00000000  00000000  000004c8  2**0
+  7 .debug_str    000000d6  00000000  00000000  00000494  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    00000018  00000000  00000000  0000059a  2**0
+  8 .debug_loc    00000018  00000000  00000000  0000056a  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -55,32 +55,33 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 67 00 	jmp	0xce	; 0xce <_exit>
+  64:	0c 94 50 00 	jmp	0xa0	; 0xa0 <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
-    // PD4-PD7		Control Panel Switches - COLUMNS
+{
+    uint8_t switches = 0;
     
-    /* set port D as output and turn D1 on*/
-    /* pins 4,5,6,7 must be set low */
+    /* port D outputs */
     /* flash led for 1 second */
-    DDRD 	= ( 1u << 7 ) | ( 1u << 6 ) | ( 1u << 5 ) |( 1u << 4 ) | ( 1u << 1 );
+    DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
   6c:	82 ef       	ldi	r24, 0xF2	; 242
   6e:	81 bb       	out	0x11, r24	; 17
-    PORTD 	= ( 1u << 1 ); 
+	
+	PORTD 	= POWER_LED_ON; 
   70:	82 e0       	ldi	r24, 0x02	; 2
   72:	82 bb       	out	0x12, r24	; 18
     
-    /* make sure these are set low */
-    PORTD 	&= ~( 1u << 4 );
+    /* make sure these are set low, */
+    PORTD 	&= ~( 1u << 4 ); // COLUMN_ONE	
   74:	94 98       	cbi	0x12, 4	; 18
-    PORTD 	&= ~( 1u << 5 );
+    PORTD 	&= ~( 1u << 5 ); // COLUMN_TWO	
   76:	95 98       	cbi	0x12, 5	; 18
-    PORTD 	&= ~( 1u << 6 );
+    PORTD 	&= ~( 1u << 6 ); // COLUMN_THREE
   78:	96 98       	cbi	0x12, 6	; 18
-    PORTD 	&= ~( 1u << 7 );
+    PORTD 	&= ~( 1u << 7 ); // COLUMN_FOUR	
   7a:	97 98       	cbi	0x12, 7	; 18
   7c:	80 e1       	ldi	r24, 0x10	; 16
   7e:	97 e2       	ldi	r25, 0x27	; 39
@@ -90,8 +91,8 @@ void
 _delay_loop_2(uint16_t __count)
 {
 	__asm__ volatile (
-  80:	28 ec       	ldi	r18, 0xC8	; 200
-  82:	30 e0       	ldi	r19, 0x00	; 0
+  80:	20 e9       	ldi	r18, 0x90	; 144
+  82:	31 e0       	ldi	r19, 0x01	; 1
   84:	f9 01       	movw	r30, r18
   86:	31 97       	sbiw	r30, 0x01	; 1
   88:	f1 f7       	brne	.-4      	; 0x86 <main+0x1a>
@@ -109,68 +110,43 @@ _delay_loop_2(uint16_t __count)
 		__ticks = (uint16_t) (__ms * 10.0);
 		while(__ticks)
   8c:	d9 f7       	brne	.-10     	; 0x84 <main+0x18>
-    _delay_ms(1000); //1 second delay
+    _delay_ms(1000); //ensure  power led on for 1 second
     
     
-    /* make rows input with pull ups */
+    /* make rows input*/
     /* pin << 4 is midi pin, ( 1u << 4 ) | */
     DDRB  = 0;
   8e:	17 ba       	out	0x17, r1	; 23
+	
+	/* apply pull-ups*/
     // PORTB = ( 1u << 4 ) | ( 1u << 3 ) | ( 1u << 2 ) | ( 1u << 1 ) |( 1u << 0 );
-    PORTB = ( 1u << 3 );
+    PORTB = ROW_ONE; // << 3
   90:	88 e0       	ldi	r24, 0x08	; 8
   92:	88 bb       	out	0x18, r24	; 24
-    
-    /* switch one is connected to pin B3 and pin D7 */
-    while(1)
-    {        
-        switches = PINB & ( 1u << 3); // def not PORTB & ( 1u << 3) 
-  94:	86 b3       	in	r24, 0x16	; 22
-    
-        if ( ( PINB & ( 1u << 3) ) |
-  96:	26 b3       	in	r18, 0x16	; 22
-  98:	86 b3       	in	r24, 0x16	; 22
-  9a:	46 b3       	in	r20, 0x16	; 22
-  9c:	66 b3       	in	r22, 0x16	; 22
-  9e:	90 e0       	ldi	r25, 0x00	; 0
-  a0:	84 70       	andi	r24, 0x04	; 4
-  a2:	90 70       	andi	r25, 0x00	; 0
-  a4:	30 e0       	ldi	r19, 0x00	; 0
-  a6:	28 70       	andi	r18, 0x08	; 8
-  a8:	30 70       	andi	r19, 0x00	; 0
-  aa:	82 2b       	or	r24, r18
-  ac:	93 2b       	or	r25, r19
-  ae:	50 e0       	ldi	r21, 0x00	; 0
-  b0:	42 70       	andi	r20, 0x02	; 2
-  b2:	50 70       	andi	r21, 0x00	; 0
-  b4:	84 2b       	or	r24, r20
-  b6:	95 2b       	or	r25, r21
-  b8:	70 e0       	ldi	r23, 0x00	; 0
-  ba:	61 70       	andi	r22, 0x01	; 1
-  bc:	70 70       	andi	r23, 0x00	; 0
-  be:	86 2b       	or	r24, r22
-  c0:	97 2b       	or	r25, r23
-  c2:	89 2b       	or	r24, r25
-  c4:	11 f0       	breq	.+4      	; 0xca <main+0x5e>
+		if ( ( PINB & ( 1u << 3) ) |
+             ( PINB & ( 1u << 2) ) |
+             ( PINB & ( 1u << 1) ) |
              ( PINB & ( 1u << 0) )
-        )
-        //if ( switches )
+        )*/
+        if ( switches )
+  94:	b3 9b       	sbis	0x16, 3	; 22
+  96:	02 c0       	rjmp	.+4      	; 0x9c <main+0x30>
         {
             // set power led on
             PORTD |= ( 1u << 1 );
-  c6:	91 9a       	sbi	0x12, 1	; 18
-  c8:	e5 cf       	rjmp	.-54     	; 0x94 <main+0x28>
+  98:	91 9a       	sbi	0x12, 1	; 18
+  9a:	fc cf       	rjmp	.-8      	; 0x94 <main+0x28>
             
         }
         else
         {
             // power led off
             PORTD &= ~(1u << 1);
-  ca:	91 98       	cbi	0x12, 1	; 18
-  cc:	e3 cf       	rjmp	.-58     	; 0x94 <main+0x28>
+  9c:	91 98       	cbi	0x12, 1	; 18
+  9e:	fa cf       	rjmp	.-12     	; 0x94 <main+0x28>
 
-000000ce <_exit>:
-  ce:	f8 94       	cli
+000000a0 <_exit>:
+  a0:	f8 94       	cli
 
-000000d0 <__stop_program>:
-  d0:	ff cf       	rjmp	.-2      	; 0xd0 <__stop_program>
+000000a2 <__stop_program>:
+  a2:	ff cf       	rjmp	.-2      	; 0xa2 <__stop_program>

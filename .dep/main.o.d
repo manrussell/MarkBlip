@@ -1,1 +1,1 @@
-main.o: main.c
+src/main.o: src/main.c
