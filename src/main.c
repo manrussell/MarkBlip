@@ -88,12 +88,11 @@ AVR programming notes
 #define READ_ROW_THREE( )	( PINB & ROW_THREE)
 #define READ_ROW_FOUR( )	( PINB & ROW_FOUR )
 
+/* forward declarations */
+void tx_all_adc_pot_data( void );
 
 void main(void)
-{
-    uint16_t adcVal = 0;
-	char buffer[5];
-	
+{	
 	USART_init( );
     
     /* port D outputs */
@@ -124,12 +123,25 @@ void main(void)
     /* switch one is connected to pin B3 and pin D7 */
     while(1)
     {   
-		adcVal = read_adc(0);
-		itoa( adcVal, buffer, 10);
-		
-		USART_putstring( buffer );
-		USART_send('\r');
-		USART_send('\n');
+		tx_all_adc_pot_data( );
     }  
 }
 
+void tx_all_adc_pot_data( void )
+{
+    uint16_t adcVal = 0;
+	char buffer[5]; // upto 1023 + newline
+
+	for( uint8_t channel = 8; channel > 0; --channel )
+	{
+		adcVal = read_adc( channel-1 );
+		itoa( adcVal, buffer, 10);
+	
+		USART_putstring( buffer );
+		USART_send('\t');
+	}
+	
+	USART_send('\r');
+	USART_send('\n');
+
+}

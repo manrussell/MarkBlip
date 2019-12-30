@@ -36,20 +36,24 @@ EXTRAINCDIRS
 useful make targets
 ==================
 
+all printed at the top of the makefile.
+
+to use programmers notepad to make and program, you must have the makefile
+selected else it fails. -or use commandline
+
 # Program the device.  --backup with burn fuses
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM) $(AVRDUDE_FUSES)
     
-# just program the fuses
-fuses:
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_FUSES)
-
-
-to use programmers notepad to make and program you must have the makefile
-selected else it fails.
 
 switch matrix
 =============
+
+
+
+POT array
+=========
+channel 0 is far right
 
 
 
