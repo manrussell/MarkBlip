@@ -36,6 +36,8 @@
 # make filename.i = Create a preprocessed source file for use in submitting
 #                   bug reports to the GCC project.
 #
+# make fuses = just burn fuses
+#
 # To rebuild project do "make clean" then "make all".
 #----------------------------------------------------------------------------
 
@@ -62,15 +64,18 @@ MCU = atmega32
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 8000000
+F_CPU = 16000000
 
 
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
+SRC_FOLDER = src
+# include folder use EXTRAINCDIRS
+OUTPUT_FOLDER = release
 
 # Target file name (without extension).
-TARGET = main
+TARGET = $(SRC_FOLDER)/main
 
 
 # Object files directory
@@ -80,7 +85,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c
+SRC = $(TARGET).c $(SRC_FOLDER)/uart.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -114,7 +119,7 @@ DEBUG = dwarf-2
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = 
+EXTRAINCDIRS = /inc
 
 
 # Compiler flag to set the C Standard level.
@@ -301,6 +306,7 @@ AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
+AVRDUDE_FUSES = -U lfuse:w:0xFF:m -U hfuse:w:0x99:m
 
 
 #---------------- Debugging Options ----------------
@@ -448,6 +454,9 @@ gccversion :
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
+# just program the fuses
+fuses:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_FUSES)
 
 # Generate avr-gdb config/init file which does the following:
 #     define the reset signal, load the target file, connect to target, and set 
