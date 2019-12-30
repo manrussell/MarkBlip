@@ -1,0 +1,109 @@
+   1               		.file	"uart.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	USART_init
+  18               	USART_init:
+  19               	.LFB2:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	.LM2:
+  24 0000 10BC      		out 64-32,__zero_reg__
+  25               	.LM3:
+  26 0002 87E6      		ldi r24,lo8(103)
+  27 0004 89B9      		out 41-32,r24
+  28               	.LM4:
+  29 0006 88E1      		ldi r24,lo8(24)
+  30 0008 8AB9      		out 42-32,r24
+  31               	.LM5:
+  32 000a 86E8      		ldi r24,lo8(-122)
+  33 000c 80BD      		out 64-32,r24
+  34               	/* epilogue start */
+  35               	.LM6:
+  36 000e 0895      		ret
+  37               	.LFE2:
+  39               	.global	USART_receive
+  41               	USART_receive:
+  42               	.LFB3:
+  43               	.LM7:
+  44               	/* prologue: function */
+  45               	/* frame size = 0 */
+  46               	.L4:
+  47               	.LM8:
+  48 0010 5F9B      		sbis 43-32,7
+  49 0012 00C0      		rjmp .L4
+  50               	.LM9:
+  51 0014 8CB1      		in r24,44-32
+  52               	/* epilogue start */
+  53               	.LM10:
+  54 0016 0895      		ret
+  55               	.LFE3:
+  57               	.global	USART_send
+  59               	USART_send:
+  60               	.LFB4:
+  61               	.LM11:
+  62               	/* prologue: function */
+  63               	/* frame size = 0 */
+  64               	.LVL0:
+  65               	.L8:
+  66               	.LM12:
+  67 0018 5D9B      		sbis 43-32,5
+  68 001a 00C0      		rjmp .L8
+  69               	.LM13:
+  70 001c 8CB9      		out 44-32,r24
+  71               	/* epilogue start */
+  72               	.LM14:
+  73 001e 0895      		ret
+  74               	.LFE4:
+  76               	.global	USART_putstring
+  78               	USART_putstring:
+  79               	.LFB5:
+  80               	.LM15:
+  81               	.LVL1:
+  82               	/* prologue: function */
+  83               	/* frame size = 0 */
+  84 0020 FC01      		movw r30,r24
+  85 0022 00C0      		rjmp .L12
+  86               	.LVL2:
+  87               	.L15:
+  88               	.LBB4:
+  89               	.LBB5:
+  90               	.LM16:
+  91 0024 5D9B      		sbis 43-32,5
+  92 0026 00C0      		rjmp .L15
+  93               	.LM17:
+  94 0028 8CB9      		out 44-32,r24
+  95               	.LBE5:
+  96               	.LBE4:
+  97               	.LM18:
+  98 002a 3196      		adiw r30,1
+  99               	.LVL3:
+ 100               	.L12:
+ 101               	.LM19:
+ 102 002c 8081      		ld r24,Z
+ 103 002e 8823      		tst r24
+ 104 0030 01F4      		brne .L15
+ 105               	/* epilogue start */
+ 106               	.LM20:
+ 107 0032 0895      		ret
+ 108               	.LFE5:
+ 158               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 uart.c
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:2      *ABS*:0000003f __SREG__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:3      *ABS*:0000003e __SP_H__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:4      *ABS*:0000003d __SP_L__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:5      *ABS*:00000034 __CCP__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:18     .text:00000000 USART_init
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:41     .text:00000010 USART_receive
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:59     .text:00000018 USART_send
+C:\Users\sigita\AppData\Local\Temp/ccv7LhTd.s:78     .text:00000020 USART_putstring
+
+NO UNDEFINED SYMBOLS

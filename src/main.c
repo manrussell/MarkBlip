@@ -37,6 +37,7 @@ AVR programming notes
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <uart.h>
 //#include "test.h"
 
 #define POWER_LED			( 1u << 1 )
@@ -91,6 +92,8 @@ AVR programming notes
 void main(void)
 {
     uint8_t switches = 0;
+	
+	USART_init( );
     
     /* port D outputs */
     DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
@@ -117,24 +120,10 @@ void main(void)
     
     /* switch one is connected to pin B3 and pin D7 */
     while(1)
-    {        
-        switches = READ_ROW_ONE( ) ; // doing this makes switches 1,2,3,4
-    
-        /* can't do this as switches 1,2,3,4 are row 1, and if any column pulls down that line to ground then
-		if ( ( PINB & ( 1u << 3) ) |
-             ( PINB & ( 1u << 2) ) |
-             ( PINB & ( 1u << 1) ) |
-             ( PINB & ( 1u << 0) )
-        )*/
-        if ( switches )
-        {
-            POWER_LED_ON( );
-            
-        }
-        else
-        {
-            POWER_LED_OFF( );
-            
-        }   
+    {   
+		USART_send( 0x4D );
+		_delay_ms(1000);
+		USART_send( 0x4E );
+		_delay_ms(1000);
     }  
 }

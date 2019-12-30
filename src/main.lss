@@ -3,21 +3,25 @@ src/main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000a6  00000000  00000000  00000054  2**1
+  0 .text         00000108  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .debug_aranges 00000020  00000000  00000000  000000fa  2**0
+  1 .debug_aranges 00000040  00000000  00000000  0000015c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  2 .debug_pubnames 0000001b  00000000  00000000  0000011a  2**0
+  2 .debug_pubnames 00000071  00000000  00000000  0000019c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  3 .debug_info   00000131  00000000  00000000  00000135  2**0
+  3 .debug_info   000002bd  00000000  00000000  0000020d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_abbrev 000000b4  00000000  00000000  00000266  2**0
+  4 .debug_abbrev 000001bb  00000000  00000000  000004ca  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   00000173  00000000  00000000  0000031a  2**0
+  5 .debug_line   000002ab  00000000  00000000  00000685  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_frame  00000020  00000000  00000000  00000490  2**2
+  6 .debug_frame  00000070  00000000  00000000  00000930  2**2
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_str    000000d6  00000000  00000000  000004b0  2**0
+  7 .debug_str    00000124  00000000  00000000  000009a0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_loc    000000d8  00000000  00000000  00000ac4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_ranges 00000048  00000000  00000000  00000b9c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -53,98 +57,226 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 51 00 	jmp	0xa2	; 0xa2 <_exit>
+  64:	0c 94 82 00 	jmp	0x104	; 0x104 <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
+#define READ_ROW_THREE( )	( PINB & ROW_THREE)
+#define READ_ROW_FOUR( )	( PINB & ROW_FOUR )
+
+
 void main(void)
 {
+  6c:	cf 93       	push	r28
+  6e:	df 93       	push	r29
     uint8_t switches = 0;
+	
+	USART_init( );
+  70:	0e 94 68 00 	call	0xd0	; 0xd0 <USART_init>
     
     /* port D outputs */
     DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
-  6c:	82 ef       	ldi	r24, 0xF2	; 242
-  6e:	81 bb       	out	0x11, r24	; 17
+  74:	82 ef       	ldi	r24, 0xF2	; 242
+  76:	81 bb       	out	0x11, r24	; 17
     
     /* make sure these are set low, */
 	SET_COLUMN_ONE_LOW( );	
-  70:	97 98       	cbi	0x12, 7	; 18
+  78:	97 98       	cbi	0x12, 7	; 18
 	SET_COLUMN_TWO_LOW( );	
-  72:	96 98       	cbi	0x12, 6	; 18
+  7a:	96 98       	cbi	0x12, 6	; 18
 	SET_COLUMN_THREE_LOW( );
-  74:	95 98       	cbi	0x12, 5	; 18
+  7c:	95 98       	cbi	0x12, 5	; 18
 	SET_COLUMN_FOUR_LOW( );	
-  76:	94 98       	cbi	0x12, 4	; 18
+  7e:	94 98       	cbi	0x12, 4	; 18
 
 	POWER_LED_ON( );	
-  78:	91 9a       	sbi	0x12, 1	; 18
-  7a:	80 e1       	ldi	r24, 0x10	; 16
-  7c:	97 e2       	ldi	r25, 0x27	; 39
+  80:	91 9a       	sbi	0x12, 1	; 18
+  82:	80 e1       	ldi	r24, 0x10	; 16
+  84:	97 e2       	ldi	r25, 0x27	; 39
     milliseconds can be achieved.
  */
 void
 _delay_loop_2(uint16_t __count)
 {
 	__asm__ volatile (
-  7e:	20 e9       	ldi	r18, 0x90	; 144
-  80:	31 e0       	ldi	r19, 0x01	; 1
-  82:	f9 01       	movw	r30, r18
-  84:	31 97       	sbiw	r30, 0x01	; 1
-  86:	f1 f7       	brne	.-4      	; 0x84 <main+0x18>
+  86:	20 e9       	ldi	r18, 0x90	; 144
+  88:	31 e0       	ldi	r19, 0x01	; 1
+  8a:	f9 01       	movw	r30, r18
+  8c:	31 97       	sbiw	r30, 0x01	; 1
+  8e:	f1 f7       	brne	.-4      	; 0x8c <main+0x20>
 		__ticks = (uint16_t) (__ms * 10.0);
 		while(__ticks)
 		{
 			// wait 1/10 ms
 			_delay_loop_2(((F_CPU) / 4e3) / 10);
 			__ticks --;
-  88:	01 97       	sbiw	r24, 0x01	; 1
+  90:	01 97       	sbiw	r24, 0x01	; 1
 		__ticks = 1;
 	else if (__tmp > 65535)
 	{
 		//	__ticks = requested delay in 1/10 ms
 		__ticks = (uint16_t) (__ms * 10.0);
 		while(__ticks)
-  8a:	d9 f7       	brne	.-10     	; 0x82 <main+0x16>
+  92:	d9 f7       	brne	.-10     	; 0x8a <main+0x1e>
     
     _delay_ms(1000); //ensure  power led on for 1 second
     
     
     /* make rows input*/
     DDRB  = 0;
-  8c:	17 ba       	out	0x17, r1	; 23
+  94:	17 ba       	out	0x17, r1	; 23
 	
 	SET_ROW_ONE_PULLUP( );
-  8e:	c3 9a       	sbi	0x18, 3	; 24
+  96:	c3 9a       	sbi	0x18, 3	; 24
 	SET_ROW_TWO_PULLUP( );	
-  90:	c2 9a       	sbi	0x18, 2	; 24
+  98:	c2 9a       	sbi	0x18, 2	; 24
 	SET_ROW_THREE_PULLUP( );	
-  92:	c1 9a       	sbi	0x18, 1	; 24
+  9a:	c1 9a       	sbi	0x18, 1	; 24
     SET_ROW_FOUR_PULLUP( );	
-  94:	c0 9a       	sbi	0x18, 0	; 24
-		if ( ( PINB & ( 1u << 3) ) |
-             ( PINB & ( 1u << 2) ) |
-             ( PINB & ( 1u << 1) ) |
-             ( PINB & ( 1u << 0) )
-        )*/
-        if ( switches )
-  96:	b3 9b       	sbis	0x16, 3	; 22
-  98:	02 c0       	rjmp	.+4      	; 0x9e <main+0x32>
-        {
-            POWER_LED_ON( );
-  9a:	91 9a       	sbi	0x12, 1	; 18
-  9c:	fc cf       	rjmp	.-8      	; 0x96 <main+0x2a>
-            
-        }
-        else
-        {
-            POWER_LED_OFF( );
-  9e:	91 98       	cbi	0x12, 1	; 18
-  a0:	fa cf       	rjmp	.-12     	; 0x96 <main+0x2a>
+  9c:	c0 9a       	sbi	0x18, 0	; 24
+  9e:	c0 e9       	ldi	r28, 0x90	; 144
+  a0:	d1 e0       	ldi	r29, 0x01	; 1
+    
+    
+    /* switch one is connected to pin B3 and pin D7 */
+    while(1)
+    {   
+		USART_send( 0x4D );
+  a2:	8d e4       	ldi	r24, 0x4D	; 77
+  a4:	90 e0       	ldi	r25, 0x00	; 0
+  a6:	0e 94 74 00 	call	0xe8	; 0xe8 <USART_send>
+  aa:	80 e1       	ldi	r24, 0x10	; 16
+  ac:	97 e2       	ldi	r25, 0x27	; 39
+  ae:	fe 01       	movw	r30, r28
+  b0:	31 97       	sbiw	r30, 0x01	; 1
+  b2:	f1 f7       	brne	.-4      	; 0xb0 <main+0x44>
+		{
+			// wait 1/10 ms
+			_delay_loop_2(((F_CPU) / 4e3) / 10);
+			__ticks --;
+  b4:	01 97       	sbiw	r24, 0x01	; 1
+		__ticks = 1;
+	else if (__tmp > 65535)
+	{
+		//	__ticks = requested delay in 1/10 ms
+		__ticks = (uint16_t) (__ms * 10.0);
+		while(__ticks)
+  b6:	d9 f7       	brne	.-10     	; 0xae <main+0x42>
+		_delay_ms(1000);
+		USART_send( 0x4E );
+  b8:	8e e4       	ldi	r24, 0x4E	; 78
+  ba:	90 e0       	ldi	r25, 0x00	; 0
+  bc:	0e 94 74 00 	call	0xe8	; 0xe8 <USART_send>
+  c0:	80 e1       	ldi	r24, 0x10	; 16
+  c2:	97 e2       	ldi	r25, 0x27	; 39
+  c4:	fe 01       	movw	r30, r28
+  c6:	31 97       	sbiw	r30, 0x01	; 1
+  c8:	f1 f7       	brne	.-4      	; 0xc6 <main+0x5a>
+		{
+			// wait 1/10 ms
+			_delay_loop_2(((F_CPU) / 4e3) / 10);
+			__ticks --;
+  ca:	01 97       	sbiw	r24, 0x01	; 1
+		__ticks = 1;
+	else if (__tmp > 65535)
+	{
+		//	__ticks = requested delay in 1/10 ms
+		__ticks = (uint16_t) (__ms * 10.0);
+		while(__ticks)
+  cc:	d9 f7       	brne	.-10     	; 0xc4 <main+0x58>
+  ce:	e9 cf       	rjmp	.-46     	; 0xa2 <main+0x36>
 
-000000a2 <_exit>:
-  a2:	f8 94       	cli
+000000d0 <USART_init>:
 
-000000a4 <__stop_program>:
-  a4:	ff cf       	rjmp	.-2      	; 0xa4 <__stop_program>
+
+/* Initialize USART */
+void USART_init(void)
+{
+  UBRRH = (uint8_t)(BAUD_PRESCALLER>>8);
+  d0:	10 bc       	out	0x20, r1	; 32
+  UBRRL = (uint8_t)(BAUD_PRESCALLER);
+  d2:	87 e6       	ldi	r24, 0x67	; 103
+  d4:	89 b9       	out	0x09, r24	; 9
+  UCSRB = (1<<RXEN)|(1<<TXEN);
+  d6:	88 e1       	ldi	r24, 0x18	; 24
+  d8:	8a b9       	out	0x0a, r24	; 10
+  UCSRC = (1<<UCSZ0)|(1<<UCSZ1)|(1<<URSEL);
+  da:	86 e8       	ldi	r24, 0x86	; 134
+  dc:	80 bd       	out	0x20, r24	; 32
+}
+  de:	08 95       	ret
+
+000000e0 <USART_receive>:
+
+/* Function to receive byte/char */
+unsigned char USART_receive(void)
+{
+  while(!(UCSRA & (1<<RXC)));
+  e0:	5f 9b       	sbis	0x0b, 7	; 11
+  e2:	fe cf       	rjmp	.-4      	; 0xe0 <USART_receive>
+  return UDR;
+  e4:	8c b1       	in	r24, 0x0c	; 12
+}
+  e6:	08 95       	ret
+
+000000e8 <USART_send>:
+
+/* Function to send byte/char */
+void USART_send( unsigned char data)
+{
+  while(!(UCSRA & (1<<UDRE)));
+  e8:	5d 9b       	sbis	0x0b, 5	; 11
+  ea:	fe cf       	rjmp	.-4      	; 0xe8 <USART_send>
+  UDR = data;
+  ec:	8c b9       	out	0x0c, r24	; 12
+}
+  ee:	08 95       	ret
+
+000000f0 <USART_putstring>:
+
+/* Send string */
+void USART_putstring(char* StringPtr)
+{
+  f0:	fc 01       	movw	r30, r24
+  f2:	04 c0       	rjmp	.+8      	; 0xfc <USART_putstring+0xc>
+}
+
+/* Function to send byte/char */
+void USART_send( unsigned char data)
+{
+  while(!(UCSRA & (1<<UDRE)));
+  f4:	5d 9b       	sbis	0x0b, 5	; 11
+  f6:	fe cf       	rjmp	.-4      	; 0xf4 <USART_putstring+0x4>
+  UDR = data;
+  f8:	8c b9       	out	0x0c, r24	; 12
+void USART_putstring(char* StringPtr)
+{
+  while(*StringPtr != 0x00)
+  {
+    USART_send(*StringPtr);
+	StringPtr++;
+  fa:	31 96       	adiw	r30, 0x01	; 1
+}
+
+/* Send string */
+void USART_putstring(char* StringPtr)
+{
+  while(*StringPtr != 0x00)
+  fc:	80 81       	ld	r24, Z
+  fe:	88 23       	and	r24, r24
+ 100:	c9 f7       	brne	.-14     	; 0xf4 <USART_putstring+0x4>
+  {
+    USART_send(*StringPtr);
+	StringPtr++;
+  }
+  
+}
+ 102:	08 95       	ret
+
+00000104 <_exit>:
+ 104:	f8 94       	cli
+
+00000106 <__stop_program>:
+ 106:	ff cf       	rjmp	.-2      	; 0x106 <__stop_program>
