@@ -38,6 +38,7 @@ AVR programming notes
 #include <avr/io.h>
 #include <util/delay.h>
 #include <uart.h>
+#include <adc.h>
 
 #define POWER_LED			( 1u << 1 )
 #define POWER_LED_ON( )		( PORTD |= POWER_LED )
@@ -90,7 +91,8 @@ AVR programming notes
 
 void main(void)
 {
-    uint8_t switches = 0;
+    uint16_t adcVal = 0;
+	char buffer[5];
 	
 	USART_init( );
     
@@ -115,14 +117,19 @@ void main(void)
 	SET_ROW_TWO_PULLUP( );	
 	SET_ROW_THREE_PULLUP( );	
     SET_ROW_FOUR_PULLUP( );	
+	
+	adc_init( );
     
     
     /* switch one is connected to pin B3 and pin D7 */
     while(1)
     {   
-		USART_send( 0x4D );
-		_delay_ms(1000);
-		USART_send( 0x4E );
-		_delay_ms(1000);
+		adcVal = read_adc(0);
+		itoa( adcVal, buffer, 10);
+		
+		USART_putstring( buffer );
+		USART_send('\r');
+		USART_send('\n');
     }  
 }
+

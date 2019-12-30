@@ -1,3 +1,9 @@
+
+/*
+code author
+https://binaryupdates.com/usart-in-avr-atmega32a-microcontroller/
+*/
+
 #ifndef __UART_C__
 #define __UART_C__
 

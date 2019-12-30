@@ -85,7 +85,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c $(SRC_FOLDER)/uart.c
+SRC = $(TARGET).c $(SRC_FOLDER)/uart.c $(SRC_FOLDER)/adc.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
