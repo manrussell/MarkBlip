@@ -40,98 +40,54 @@ AVR programming notes
 #include <uart.h>
 #include <adc.h>
 
-#define POWER_LED			( 1u << 1 )
+#define POWER_LED			( 1u << PD1 )
 #define POWER_LED_ON( )		( PORTD |= POWER_LED )
 #define POWER_LED_OFF( )	( PORTD &= ~POWER_LED )
 
 
-#define COLUMN_ONE		( 1u << 7 )
-#define COLUMN_TWO		( 1u << 6 )
-#define COLUMN_THREE	( 1u << 5 )
-#define COLUMN_FOUR		( 1u << 4 )
+#define _NOP() do { __asm__ __volatile__ ("nop"); } while (0)
+#define _NOPS_FOR_PIN_STABILITY( ) for( uint8_t i=0; i< 12; i++){ __asm__ __volatile__ ("nop"); }
 
-#define SET_COLUMN_ONE_OUTPUT( )	( DDRD 	|= COLUMN_ONE  )
-#define SET_COLUMN_TWO_OUTPUT( )	( DDRD 	|= COLUMN_TWO  )
-#define SET_COLUMN_THREE_OUTPUT( )	( DDRD 	|= COLUMN_THREE)
-#define SET_COLUMN_FOUR_OUTPUT( )	( DDRD 	|= COLUMN_FOUR )
-        
-#define SET_COLUMN_ONE_LOW( )		( PORTD &= ~(COLUMN_ONE)  )
-#define SET_COLUMN_TWO_LOW( )		( PORTD &= ~(COLUMN_TWO)  )
-#define SET_COLUMN_THREE_LOW( )		( PORTD &= ~(COLUMN_THREE))
-#define SET_COLUMN_FOUR_LOW( )		( PORTD &= ~(COLUMN_FOUR) )
-
-/* to disable set pin as input. */
-#define DISABLE_COLUMN_ONE( )		( DDRD &= ~(COLUMN_ONE)  )
-#define DISABLE_COLUMN_TWO_LOW( )	( DDRD &= ~(COLUMN_TWO)  )
-#define DISABLE_COLUMN_THREE_LOW( )	( DDRD &= ~(COLUMN_THREE))
-#define DISABLE_COLUMN_FOUR_LOW( )	( DDRD &= ~(COLUMN_FOUR) )
-
-
-#define ROW_ONE			( 1u << 3 )
-#define ROW_TWO			( 1u << 2 )
-#define ROW_THREE		( 1u << 1 )
-#define ROW_FOUR		( 1u << 0 )
-/* pin << 4 is midi pin, ( 1u << 4 ) | */
-
-#define SET_ROW_ONE_INPUT( )		( DDRB &= ~(ROW_ONE)  )
-#define SET_ROW_TWO_INPUT( )		( DDRB &= ~(ROW_TWO)  )
-#define SET_ROW_THREE_INPUT( )		( DDRB &= ~(ROW_THREE))
-#define SET_ROW_FOUR_INPUT( )		( DDRB &= ~(ROW_FOUR) )
-
-#define SET_ROW_ONE_PULLUP( )		( PORTB |= ROW_ONE  )
-#define SET_ROW_TWO_PULLUP( )		( PORTB |= ROW_TWO  )
-#define SET_ROW_THREE_PULLUP( )		( PORTB |= ROW_THREE)
-#define SET_ROW_FOUR_PULLUP( )		( PORTB |= ROW_FOUR )
-
-#define READ_ROW_ONE( )		( PINB & ROW_ONE )
-#define READ_ROW_TWO( )		( PINB & ROW_TWO  )
-#define READ_ROW_THREE( )	( PINB & ROW_THREE)
-#define READ_ROW_FOUR( )	( PINB & ROW_FOUR )
 
 /* forward declarations */
-void tx_all_adc_pot_data( void );
+void 	 tx_all_adc_pot_data( void );
+uint16_t get_switch_states( void );
 
-void main(void)
-{	
-	USART_init( );
-    
+void main (void)
+{
+	uint16_t switches = 0;
+	
     /* port D outputs */
-    DDRD 	= COLUMN_ONE | COLUMN_TWO | COLUMN_THREE | COLUMN_FOUR | POWER_LED;
-    
-    /* make sure these are set low, */
-	SET_COLUMN_ONE_LOW( );	
-	SET_COLUMN_TWO_LOW( );	
-	SET_COLUMN_THREE_LOW( );
-	SET_COLUMN_FOUR_LOW( );	
+    DDRD = POWER_LED;	
+	
+	POWER_LED_ON( );
 
-	POWER_LED_ON( );	
+    /* make PB0-PB4 ( not using 4 but needs to be input/floating ) -rows, input */
+    DDRB = 0;	
+	
+	USART_init( );
+	adc_init( );	
     
     _delay_ms(1000); //ensure  power led on for 1 second
     
-    
-    /* make rows input*/
-    DDRB  = 0;
-	
-	SET_ROW_ONE_PULLUP( );
-	SET_ROW_TWO_PULLUP( );	
-	SET_ROW_THREE_PULLUP( );	
-    SET_ROW_FOUR_PULLUP( );	
-	
-	adc_init( );
-    
-    
-    /* switch one is connected to pin B3 and pin D7 */
     while(1)
     {   
-		tx_all_adc_pot_data( );
+		//tx_all_adc_pot_data( );
+		switches = get_switch_states( );
+		outbin16( switches );
+		USART_send('\r');
+		USART_send('\n');
+		_delay_ms(100);
     }  
 }
+
 
 void tx_all_adc_pot_data( void )
 {
     uint16_t adcVal = 0;
 	char buffer[5]; // upto 1023 + newline
-
+	
+	/* start with 8 so it prints out to screen to match the hw infront of you */
 	for( uint8_t channel = 8; channel > 0; --channel )
 	{
 		adcVal = read_adc( channel-1 );
@@ -144,4 +100,61 @@ void tx_all_adc_pot_data( void )
 	USART_send('\r');
 	USART_send('\n');
 
+}
+
+/*
+	PB0-PB4		Control Panel Switches - ROWS
+	PD4-PD7		Control Panel Switches - COLUMNS
+	
+	when inputs have no pull-up they are just floating
+	when columns are set to input they are also just floating
+*/
+/*
+  ok so this returns all the 16 switches but ignores the midi channel switches, to do that 
+  could return a 32_t? and make rows rowIndex < 5 
+  not tested this though
+*/
+
+uint16_t get_switch_states( void )
+{
+	uint16_t switchState = 0;
+	uint8_t colCnt = 0;
+	uint8_t rowCnt = 0;
+
+	//iterate columns
+	for( uint8_t colIndex = 4; colIndex < 8; colIndex++ )   
+	{
+		// set col to output and low
+		DDRD  |=  ( 1 << colIndex );
+		PORTD &= ~( 1 << colIndex );
+		_NOPS_FOR_PIN_STABILITY( );
+		
+		rowCnt = 0;
+		
+		//iterate rows
+		for( uint8_t rowIndex = 0;  rowIndex < 4; rowIndex++ )
+		{			
+			// set row with pullup
+			PORTB |= ( 1 << rowIndex );
+			_NOPS_FOR_PIN_STABILITY( );
+			
+			// read pin
+			switchState |=  ( (PINB & ( 1 << rowIndex )) >> rowIndex ) << ( rowCnt + colCnt );
+			
+			// clear pullup
+			PORTB &= ~( 1 << rowIndex );
+			_NOPS_FOR_PIN_STABILITY( );
+			
+			rowCnt++;
+			
+		}
+		
+		//disable the column, make input
+		DDRD &= ~( 1 << colIndex );
+		_NOPS_FOR_PIN_STABILITY( );
+		
+		colCnt += 4;
+	}
+	
+	return switchState;
 }

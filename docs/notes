@@ -45,11 +45,22 @@ selected else it fails. -or use commandline
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM) $(AVRDUDE_FUSES)
     
+uart
+====
+use transistor as a ground use +'ve led pin as tx pin
+
+usb cable - black wire is ground
+?? check when its light - is tx pin
 
 switch matrix
 =============
+when switches are up - near uC value is '0' (else we get 1,2,4,8)
 
+need to have a delay -- used 12 nop's as any shorter still gave errors
 
+when gpio set as input it floats, therefore to disable the column set as input
+
+I have ignored the midi channel switches for now - just leave as input
 
 POT array
 =========
