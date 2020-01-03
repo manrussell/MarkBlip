@@ -52,10 +52,12 @@ AVR programming notes
 /* forward declarations */
 void 	 tx_all_adc_pot_data( void );
 uint16_t get_switch_states( void );
+void writeToDac(int16_t data);
 
 void main (void)
 {
 	uint16_t switches = 0;
+	int16_t sound = 0;
 	
     /* port D outputs */
     DDRD = POWER_LED;	
@@ -65,6 +67,12 @@ void main (void)
     /* make PB0-PB4 ( not using 4 but needs to be input/floating ) -rows, input */
     DDRB = 0;	
 	
+	/*  PD3 is DAC W/R, PD2 is DAC A/B */
+	DDRD |= ( 1u << PD3 ) | ( 1u << PD2 );
+
+	/* port C is all outputs to DAC */
+	DDRC |= 0xFF;
+	
 	USART_init( );
 	adc_init( );	
     
@@ -73,11 +81,34 @@ void main (void)
     while(1)
     {   
 		//tx_all_adc_pot_data( );
+		
+		/*
 		switches = get_switch_states( );
 		outbin16( switches );
 		USART_send('\r');
 		USART_send('\n');
 		_delay_ms(100);
+		*/
+		
+		/* hopefully generate a ramp/sawtooth wave */
+		/*
+		writeToDac( sound++ );
+		_delay_us(2);
+		*/
+		
+		// triangular wave
+		//https://stackoverflow.com/questions/1073606/is-there-a-one-line-function-that-generates-a-triangle-wave
+		/* more of a 'v' wave
+		-3  3
+		-2  2
+		-1  1
+		0   0
+		1   1
+		2   2
+		3   3
+		*/
+		writeToDac ( abs((sound++ % 32768) - 16384) );
+		
     }  
 }
 
@@ -158,3 +189,56 @@ uint16_t get_switch_states( void )
 	
 	return switchState;
 }
+
+
+void writeToDac(int16_t data)
+{
+/*
+	Write the 16-bit signed output of the DCA to the DAC.
+	line 1092 from assembly file
+
+    sbi		PORTD, 3			; Set WR high
+    subi	r31, 128		    ; U2 --> PB
+    cbi		PORTD, 2			; Select DAC port A
+    out	    PORTC, r31	        ; output most significant byte
+    cbi		PORTD, 3			; Pull WR low to load buffer A
+    sbi		PORTD, 3			; Set WR high
+    sbi		PORTD, 2			; Select DAC port B
+    out	    PORTC, r30	        ; output least significant byte
+    cbi		PORTD, 3			; Pull WR low to load buffer B
+    sbi		PORTD, 3			; Set WR high again
+*/   
+
+    // Set WR high
+    PORTD |= ( 1u << PD3 );
+    
+    // ignore subi	r31, 128		    ; U2 --> PB
+    // what does this do? minus 128 from MSByte so it can be output as a byte 
+    // data >> 
+    
+    // Select DAC port A
+    PORTD &= ~( 1u << PD2 );
+    
+    // output most significant byte
+    PORTC = (data >> 8) & 0xFF;     // do shift/subtraction here 
+  
+    // Pull WR low to load buffer A
+    PORTD &= ~( 1u << PD3 );
+    
+    // Set WR high
+    PORTD |= ( 1u << PD3 );
+    
+    // Select DAC port B
+    PORTD |= ( 1u << PD2 );
+    
+    // output least significant byte
+    PORTC = data & 0xFF;
+    
+    // Pull WR low to load buffer B
+    PORTD &= ~( 1u << PD3 );
+    
+    // Set WR high again
+    PORTD |= ( 1u << PD3 );
+
+}
+

@@ -60,11 +60,64 @@ need to have a delay -- used 12 nop's as any shorter still gave errors
 
 when gpio set as input it floats, therefore to disable the column set as input
 
-I have ignored the midi channel switches for now - just leave as input
+I have ignored the midi channel dip switches for now - just leave as input
 
 POT array
 =========
 channel 0 is far right
+
+
+Dac
+===
+in assembly file we have
+
+; Output Sample
+;
+; Write the 16-bit signed output of the DCA to the DAC.
+
+;write sample (r31:r30) to DAC:
+
+			sbi		PORTD, 3			; Set WR high
+		    subi	r31, 128		    ; U2 --> PB
+			cbi		PORTD, 2			; Select DAC port A
+			out	    PORTC, r31	        ; output most significant byte
+			cbi		PORTD, 3			; Pull WR low to load buffer A
+			sbi		PORTD, 3			; Set WR high
+			sbi		PORTD, 2			; Select DAC port B
+			out	    PORTC, r30	        ; output least significant byte
+			cbi		PORTD, 3			; Pull WR low to load buffer B
+			sbi		PORTD, 3			; Set WR high again
+
+
+avr assembly instructions ...
+section 31 of the datasheet
+
+subi - Subtracts a register and a constant and places the result in the destination register Rd
+
+out - store register to i/o location. Stores data from register Rr in the register file to I/O Space (Ports, Timers, Configuration registers etc.).
+
+cbi - Clears a specified bit in an I/O register
+sbi - Sets a specified bit in an I/O register
+
+
+Basic triangular test for dac
+=============================
+
+ramp function will have 65536 increments
+i want this periodic function to happen 440 times per second 
+
+
+
+========================================================================
+ToDo
+====
+
+copy batch flash file for original meeblip code
+what to do with tutorials i used?
+what to do with original meeblip code / schematics?
+
+;	PB7			DAC LDAC signal (load both DAC ports synchronously)
+;	PC0-PC7		DATA port for DAC
 
 
 
