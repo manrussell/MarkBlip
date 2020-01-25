@@ -48,7 +48,7 @@ AVR programming notes
 #define POWER_LED_OFF( )	( PORTD &= ~POWER_LED )
 
 
-void main (void)
+int main (void)
 {
 	uint16_t switches = 0;
 	int16_t soundData = 0;
@@ -64,9 +64,8 @@ void main (void)
 	/*  PD3 is DAC W/R, PD2 is DAC A/B */
 	DDRD |= ( 1u << PD3 ) | ( 1u << PD2 );
 
-	/* port C is all outputs to DAC */
+	/* init DAC, port C is all outputs */
 	DDRC |= 0xFF;
-	
 	USART_init( );
 	adc_init( );	
     
@@ -81,23 +80,25 @@ void main (void)
 		outbin16( switches ); newline( );
 		//_delay_ms(100);
 		
-		
 		soundData = RampWaveform( soundData );
-		//soundData++;
-		
-		if( switches & 0x0001)
+			
+		if ( SWITCH_DOWN(switches, SWITCH_2) )
 		{
 			soundData = 255;
+		}
+		else
+		{
+			soundData = 0;
 		}
 		
 		writeToDac( soundData );
 		outhex16( soundData );
 		newline( );
-		//_delay_us(1);
-		
-		
+		_delay_ms(250);
 		
     }  
+	
+	return 0;
 }
 
 

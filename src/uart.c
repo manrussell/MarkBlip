@@ -1,13 +1,16 @@
 
 /*
-code author
+code author, some from ...
 https://binaryupdates.com/usart-in-avr-atmega32a-microcontroller/
+some by Mark Russell
+
 */
 
 #ifndef __UART_C__
 #define __UART_C__
 
 #include <avr/io.h>
+#include "uart.h"
 
 // 9600
 #define BAUDRATE 57600 

@@ -2,6 +2,7 @@
 #define __SWITCH_C__
 
 #include <avr/io.h>
+#include "switch.h"
 
 #define _NOP() do { __asm__ __volatile__ ("nop"); } while (0)
 #define _NOPS_FOR_PIN_STABILITY( ) for( uint8_t i=0; i< 12; i++){ __asm__ __volatile__ ("nop"); }
@@ -63,4 +64,9 @@ uint16_t get_switch_states( void )
 	
 	return switchState;
 }
+
+
+
+
+
 #endif /* __SWITCH_C__ */

@@ -9,6 +9,7 @@ https://binaryupdates.com/adc-in-avr-atmega32a-microcontroller/
 
 #include <avr/io.h>
 #include <uart.h>
+#include "adc.h"
 
 
 void adc_init(void)

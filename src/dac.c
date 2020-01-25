@@ -2,6 +2,7 @@
 #define __DAC_C__
 
 #include <avr/io.h>
+#include "dac.h"
 
 void writeToDac(int16_t data)
 {
