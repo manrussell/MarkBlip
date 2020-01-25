@@ -12,5 +12,17 @@ unsigned char USART_receive(void);
 void USART_send( unsigned char data);
 void USART_putstring(char* StringPtr);
 
+void outbin8 (uint8_t  d);
+void outbin16(uint16_t d);
+void outbin32(uint32_t d);
+
+void outhex8 (uint8_t  d);
+void outhex16(uint16_t d);
+void outhex32(uint32_t d);
+
+void newline( void );
+
+
+
 #endif /* __UART_H__ */
 

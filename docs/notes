@@ -99,13 +99,30 @@ out - store register to i/o location. Stores data from register Rr in the regist
 cbi - Clears a specified bit in an I/O register
 sbi - Sets a specified bit in an I/O register
 
+DAC HW
+=====================
+mixer -> lp filter -> lp filter -> volume -> jack plug
+
+stated sample rate in original .asm - 36363.63636 Hz
+looks like two sallen and key low pass filters,
+i ran the first LP through a circuit simulator on my phone, 
+i would believe it had a cutoff freq of approx sampleRate/2 = 18181.81818 Hz
+
+
+
+objdump
+=======
+
+avr-objdump -S main.elf > markDissassembly
+
+
 
 Basic triangular test for dac
 =============================
 
 ramp function will have 65536 increments
 i want this periodic function to happen 440 times per second 
-
+therefore 440*65536 = 28,835,840
 
 
 ========================================================================
@@ -120,4 +137,8 @@ what to do with original meeblip code / schematics?
 ;	PC0-PC7		DATA port for DAC
 
 
+i'm not suer the .h are being used properly, i did have the bin/hex files in the header and still was fine using functions - check.
+
+
+SRC = $(TARGET).c $(SRC_FOLDER)/uart.c $(SRC_FOLDER)/adc.c $(SRC_FOLDER)/switches.c $(SRC_FOLDER)/dac.c $(SRC_FOLDER)/waveforms.c
 

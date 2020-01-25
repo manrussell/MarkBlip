@@ -8,6 +8,7 @@ https://binaryupdates.com/adc-in-avr-atmega32a-microcontroller/
 #define __ADC_C__
 
 #include <avr/io.h>
+#include <uart.h>
 
 
 void adc_init(void)
@@ -25,6 +26,26 @@ uint16_t read_adc(uint8_t channel)
   ADCSRA |= (1<<ADSC);              // Starts a new conversion
   while(ADCSRA & (1<<ADSC));            // Wait until the conversion is done
   return ADCW;                // Returns the ADC value of the chosen channel
+}
+
+void tx_all_adc_pot_data( void )
+{
+    uint16_t adcVal = 0;
+	char buffer[5]; // upto 1023 + newline
+	
+	/* start with 8 so it prints out to screen to match the hw infront of you */
+	for( uint8_t channel = 8; channel > 0; --channel )
+	{
+		adcVal = read_adc( channel-1 );
+		itoa( adcVal, buffer, 10);
+	
+		USART_putstring( buffer );
+		USART_send('\t');
+	}
+	
+	USART_send('\r');
+	USART_send('\n');
+
 }
 
 #endif /* __ADC_C__ */

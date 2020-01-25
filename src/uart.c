@@ -9,7 +9,8 @@ https://binaryupdates.com/usart-in-avr-atmega32a-microcontroller/
 
 #include <avr/io.h>
 
-#define BAUDRATE 9600
+// 9600
+#define BAUDRATE 57600 
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) - 1)
 
 
@@ -48,7 +49,7 @@ void USART_putstring(char* StringPtr)
 }
 
 
-void USART_send_binary( uint32_t data, uint8_t len )
+static void USART_send_binary( uint32_t data, uint8_t len )
 {
 	for(uint8_t cnt = 0; cnt<len; cnt++)
 	{
@@ -75,7 +76,7 @@ void outbin32(uint32_t d)
 
 
 
-void USART_send_hex(uint32_t v, uint8_t len)
+static void USART_send_hex(uint32_t v, uint8_t len)
 {
 	uint8_t 	i;
 	uint32_t 	s;
@@ -105,5 +106,10 @@ void outhex32(uint32_t d)
 	USART_send_hex(d,8);
 }
 
+void newline( void )
+{
+	USART_send('\r'); 
+	USART_send('\n');
+}
 
 #endif /* __UART_C__ */

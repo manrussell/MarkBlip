@@ -71,6 +71,7 @@ F_CPU = 16000000
 FORMAT = ihex
 
 SRC_FOLDER = src
+# SRC_FOLDER =
 # include folder use EXTRAINCDIRS
 OUTPUT_FOLDER = release
 
@@ -85,7 +86,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c $(SRC_FOLDER)/uart.c $(SRC_FOLDER)/adc.c
+SRC = $(TARGET).c $(SRC_FOLDER)/uart.c $(SRC_FOLDER)/adc.c $(SRC_FOLDER)/switch.c $(SRC_FOLDER)/dac.c $(SRC_FOLDER)/waveforms.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
