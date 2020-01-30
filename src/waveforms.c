@@ -7,13 +7,13 @@
 #include "waveforms.h"
 
 
-int16_t RampWaveform( int16_t sound )
+int16_t WAVEFORM_Ramp( int16_t sound )
 {
 	return ++sound;
 }
 
 
-int16_t TriangularWaveform8bit( int16_t sound )
+int16_t WAVEFORM_Triangular8bit( int16_t sound )
 {
 	// triangular wave
 	//https://stackoverflow.com/questions/1073606/is-there-a-one-line-function-that-generates-a-triangle-wave
@@ -33,7 +33,7 @@ int16_t TriangularWaveform8bit( int16_t sound )
 	return ( abs( (sound++ % 255) - 128));
 }
 
-int16_t TriangularWaveform16bit( int16_t sound )
+int16_t WAVEFORM_Triangular16bit( int16_t sound )
 {	
 	// 16 bit-ness
 	return ( abs( (sound++ % 65535) - 32767));

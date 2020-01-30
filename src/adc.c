@@ -1,18 +1,19 @@
 
 /*
-code lifted from
+code author for init( ) and read( ) from
 https://binaryupdates.com/adc-in-avr-atmega32a-microcontroller/
+the rest Mark Russell
 */
 
 #ifndef __ADC_C__
 #define __ADC_C__
 
 #include <avr/io.h>
-#include <uart.h>
+#include "uart.h"
 #include "adc.h"
 
 
-void adc_init(void)
+void ADC_init(void)
 {
   ADCSRA |= ((1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0));   // 16Mhz/128 = 125Khz the ADC reference clock
   ADMUX |= (1<<REFS0);              // Voltage reference from Avcc (5v)
@@ -20,7 +21,7 @@ void adc_init(void)
   ADCSRA |= (1<<ADSC);              // Do an initial conversion because this one is the slowest and to ensure that everything is up and running
 }
 
-uint16_t read_adc(uint8_t channel)
+uint16_t ADC_read(uint8_t channel)
 {
   ADMUX &= 0xF0;              // Clear the older channel that was read
   ADMUX |= channel;              // Defines the new ADC channel to be read
@@ -29,7 +30,7 @@ uint16_t read_adc(uint8_t channel)
   return ADCW;                // Returns the ADC value of the chosen channel
 }
 
-void tx_all_adc_pot_data( void )
+void ADC_tx_all_adc_pot_data( void )
 {
     uint16_t adcVal = 0;
 	char buffer[5]; // upto 1023 + newline
@@ -37,7 +38,7 @@ void tx_all_adc_pot_data( void )
 	/* start with 8 so it prints out to screen to match the hw infront of you */
 	for( uint8_t channel = 8; channel > 0; --channel )
 	{
-		adcVal = read_adc( channel-1 );
+		adcVal = ADC_read( channel-1 );
 		itoa( adcVal, buffer, 10);
 	
 		USART_putstring( buffer );

@@ -1,6 +1,6 @@
 
 /*
-code author, some from ...
+author of init( ) from ...
 https://binaryupdates.com/usart-in-avr-atmega32a-microcontroller/
 some by Mark Russell
 
@@ -12,7 +12,7 @@ some by Mark Russell
 #include <avr/io.h>
 #include "uart.h"
 
-// 9600
+/* Max Baud rate seems to be 57600 */
 #define BAUDRATE 57600 
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) - 1)
 
@@ -56,23 +56,21 @@ static void USART_send_binary( uint32_t data, uint8_t len )
 {
 	for(uint8_t cnt = 0; cnt<len; cnt++)
 	{
-		// uint8_t data = ((data & ( 1 << cnt)) >> cnt) + 48;
-		// USART_send( data );
 		USART_send( ((data & ( 1 << cnt)) >> cnt) + 48 );
 	}
 }
 
-void outbin8(uint8_t d)
+void USART_outbin8(uint8_t d)
 {
 	USART_send_binary( d, 8 );
 }
 
-void outbin16(uint16_t d)
+void USART_outbin16(uint16_t d)
 {
 	USART_send_binary( d, 16 );
 }
 
-void outbin32(uint32_t d)
+void USART_outbin32(uint32_t d)
 {
 	USART_send_binary( d, 32 );
 }
@@ -94,22 +92,22 @@ static void USART_send_hex(uint32_t v, uint8_t len)
 	}
 }
 
-void outhex8(uint8_t d)
+void USART_outhex8(uint8_t d)
 {
 	USART_send_hex(d,2);
 }
 
-void outhex16(uint16_t d)
+void USART_outhex16(uint16_t d)
 {
 	USART_send_hex(d,4);
 }
 
-void outhex32(uint32_t d)
+void USART_outhex32(uint32_t d)
 {
 	USART_send_hex(d,8);
 }
 
-void newline( void )
+void USART_newline( void )
 {
 	USART_send('\r'); 
 	USART_send('\n');

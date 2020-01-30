@@ -37,11 +37,11 @@ AVR programming notes
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <uart.h>
-#include <adc.h>
-#include <switch.h>
-#include <dac.h>
-#include <waveforms.h>
+#include "uart.h"
+#include "adc.h"
+#include "switch.h"
+#include "dac.h"
+#include "waveforms.h"
 
 #define POWER_LED			( 1u << PD1 )
 #define POWER_LED_ON( )		( PORTD |= POWER_LED )
@@ -66,8 +66,9 @@ int main (void)
 
 	/* init DAC, port C is all outputs */
 	DDRC |= 0xFF;
+	
 	USART_init( );
-	adc_init( );	
+	ADC_init( );	
     
     _delay_ms(1000); //ensure  power led on for 1 second
     
@@ -76,13 +77,13 @@ int main (void)
 		//tx_all_adc_pot_data( );
 		
 		
-		switches = get_switch_states( );
-		outbin16( switches ); newline( );
+		switches = SWITCH_read_states( );
+		USART_outbin16( switches ); USART_newline( );
 		//_delay_ms(100);
 		
-		soundData = RampWaveform( soundData );
+		soundData = WAVEFORM_Ramp( soundData );
 			
-		if ( SWITCH_DOWN(switches, SWITCH_2) )
+		if ( SWITCH_UP(switches, SWITCH_2) )
 		{
 			soundData = 255;
 		}
@@ -91,9 +92,9 @@ int main (void)
 			soundData = 0;
 		}
 		
-		writeToDac( soundData );
-		outhex16( soundData );
-		newline( );
+		DAC_write( soundData );
+		USART_outhex16( soundData );
+		USART_newline( );
 		_delay_ms(250);
 		
     }  

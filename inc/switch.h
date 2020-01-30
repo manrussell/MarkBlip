@@ -42,8 +42,12 @@
 #define SWITCH_15_DOWN ( 1 << SWITCH_15  )
 #define SWITCH_16_DOWN ( 1 << SWITCH_16  )
 
+/*
+i think SWITCH_UP will probably produce better code, we don't need to do the extra not
+*/
+#define SWITCH_UP( switch_state , switch_number)  ( switch_state & ( 1U << switch_number) )
 
-#define SWITCH_DOWN( switch_state , switch_number) (  switch_state & ( 1U << switch_number) )
+#define SWITCH_DOWN( switch_state , switch_number)  (!( switch_state & ( 1U << switch_number) ))
 
 /* SWITCH_CHECK turns out is actually the same as switch down 
 -- maybe check which gives better assembly??
@@ -66,6 +70,7 @@ static inline int switchCheck( uint16 switches, int switch_num  )
 
 
 
-uint16_t get_switch_states( void );
+uint16_t SWITCH_read_states( void );
+uint16_t SWITCH_read_states_inverted( void );
 
 #endif /* __SWITCH_H__ */

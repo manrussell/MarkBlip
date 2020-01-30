@@ -4,11 +4,10 @@
 #include <avr/io.h>
 #include "dac.h"
 
-void writeToDac(int16_t data)
-{
+
 /*
 	Write the 16-bit signed output of the DCA to the DAC.
-	line 1092 from assembly file
+	line 1092 from original v1.31 meeblip assembly file
 
     sbi		PORTD, 3			; Set WR high
     subi	r31, 128		    ; U2 --> PB
@@ -20,8 +19,9 @@ void writeToDac(int16_t data)
     out	    PORTC, r30	        ; output least significant byte
     cbi		PORTD, 3			; Pull WR low to load buffer B
     sbi		PORTD, 3			; Set WR high again
-*/   
-
+*/ 
+void DAC_write(int16_t data)
+{
     // Set WR high
     PORTD |= ( 1u << PD3 );
     
