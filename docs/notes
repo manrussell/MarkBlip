@@ -103,10 +103,25 @@ DAC HW
 =====================
 mixer -> lp filter -> lp filter -> volume -> jack plug
 
-stated sample rate in original .asm - 36363.63636 Hz
+stated sample rate in original meeblip v1.31 .asm - 36363.63636 Hz
 looks like two sallen and key low pass filters,
 i ran the first LP through a circuit simulator on my phone, 
 i would believe it had a cutoff freq of approx sampleRate/2 = 18181.81818 Hz
+
+DAC Issues
+==========
+
+to test i set up a switch when in the 'up' position would output to DAC 0xFF, when in the 'down' position output a 0x0 
+
+i probed the DAC pins as they were easiest to deal with.
+
+Results:
+    when in 'up' position 0xFF, all pins (C0-C7) should be high
+    Pin 4, PC4 was low !!
+
+    when in the 'down' position 0x0, all pins (C0-C7) should be low
+    pin 3/5/6 were high !!
+
 
 
 
