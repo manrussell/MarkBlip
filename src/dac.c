@@ -20,7 +20,7 @@
     cbi		PORTD, 3			; Pull WR low to load buffer B
     sbi		PORTD, 3			; Set WR high again
 */ 
-void DAC_write(int16_t data)
+void DAC_write16bits(int16_t data)
 {
     // Set WR high
     PORTD |= ( 1u << PD3 );
@@ -41,6 +41,26 @@ void DAC_write(int16_t data)
     // Set WR high
     PORTD |= ( 1u << PD3 );
     
+    // Select DAC port B
+    PORTD |= ( 1u << PD2 );
+    
+    // output least significant byte
+    PORTC = data & 0xFF;
+    
+    // Pull WR low to load buffer B
+    PORTD &= ~( 1u << PD3 );
+    
+    // Set WR high again
+    PORTD |= ( 1u << PD3 );
+
+}
+
+
+void DAC_writeLow8bits(int16_t data)
+{
+    // Set WR high
+    PORTD |= ( 1u << PD3 );
+       
     // Select DAC port B
     PORTD |= ( 1u << PD2 );
     

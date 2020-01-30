@@ -74,7 +74,7 @@ int main (void)
     
     while(1)
     {   
-		//tx_all_adc_pot_data( );
+		//ADC_tx_all_adc_pot_data( );
 		
 		
 		switches = SWITCH_read_states( );
@@ -92,7 +92,7 @@ int main (void)
 			soundData = 0;
 		}
 		
-		DAC_write( soundData );
+		DAC_writeLow8bits( soundData );
 		USART_outhex16( soundData );
 		USART_newline( );
 		_delay_ms(250);
